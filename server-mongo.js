@@ -24,7 +24,7 @@ app.use((req, res, next) => {
 });
 
 // 連接到 MongoDB
-mongoose.connect('process.env.MONGODB_URI', {
+mongoose.connect(process.env.MONGODB_URI, {
   serverSelectionTimeoutMS: 50000, // 設置為 50 秒的連接超時
   useNewUrlParser: true,
   useUnifiedTopology: true
