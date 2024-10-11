@@ -40,7 +40,8 @@ function createWebSocket() {
         return;
     }
 
-    var url = "ws://" + window.location.host + "/ws?id=" + PERSON_NAME;
+    var protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+    var url = protocol + "chatroom-node.onrender.com/ws?id=" + PERSON_NAME;
     console.log('WebSocket URL:', url); // 確認 URL 正確
     ws = new WebSocket(url);
 
@@ -61,14 +62,23 @@ function createWebSocket() {
         }
     };
 
+    // 當 WebSocket 連接關閉時
     ws.onclose = function(event) {
         console.log('WebSocket connection closed:', event);
-        // 自動重連邏輯
-        setTimeout(createWebSocket, 3000); // 3秒後嘗試重新連接
+        // 根據關閉的原因選擇是否要重新連接
+        if (!event.wasClean || event.code !== 1000) {
+            // 如果關閉不是正常的或代碼不是1000（表示正常關閉），進行重連
+            setTimeout(createWebSocket, 10000);
+        }
     };
 
+    // 當 WebSocket 發生錯誤
     ws.onerror = function(error) {
         console.log('WebSocket error:', error);
+        // 錯誤處理後，如果 WebSocket 仍然關閉，嘗試重新連接
+        if (ws.readyState === WebSocket.CLOSED) {
+            setTimeout(createWebSocket, 10000);
+        }
     };
 }
 
