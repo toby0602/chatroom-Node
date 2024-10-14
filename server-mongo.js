@@ -9,9 +9,9 @@ const path = require('path');
 const app = express();
 const server = http.createServer(app);
 
-// 檢查使用的是 HTTP 還是 HTTPS 協議來決定 WebSocket 使用 ws 還是 wss
-const isHttps = process.env.NODE_ENV === 'production' || process.env.USE_HTTPS === 'true';
-const websocketProtocol = isHttps ? 'wss' : 'ws';
+// // 檢查使用的是 HTTP 還是 HTTPS 協議來決定 WebSocket 使用 ws 還是 wss
+// const isHttps = process.env.NODE_ENV === 'production' || process.env.USE_HTTPS === 'true';
+// const websocketProtocol = isHttps ? 'wss' : 'ws';
 const wss = new WebSocket.Server({ server });
 
 // 設置靜態文件目錄
@@ -23,16 +23,20 @@ app.use((req, res, next) => {
     next();
 });
 
-console.log('MongoDB 連接字串：', process.env.MONGODB_URI);
+const uri = process.env.MONGODB_URI;
+
+// 檢查環境變數是否正確讀取
+if (!uri) {
+  console.error('MongoDB URI is not defined in environment variables');
+  process.exit(1);  // 如果沒有定義，終止程式
+}
 
 // 連接到 MongoDB
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 50000 // 設置為 50 秒的連接超時
+mongoose.connect(uri, {
+  useNewUrlParser: true, useUnifiedTopology: true
 })
   .then(() => console.log('MongoDB 連接成功'))
-  .catch(err => console.error('MongoDB 連接失敗：', err));
+  .catch((err) => console.error('MongoDB 連接失敗：', err));
 
 
 // // 使用環境變數中的 MongoDB 連接字串
