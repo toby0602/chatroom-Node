@@ -1,4 +1,4 @@
-require('dotenv').config();
+// require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
@@ -21,7 +21,7 @@ app.use((req, res, next) => {
 });
 
 // 連接到 MongoDB
-mongoose.connect(uri, {
+mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true, useUnifiedTopology: true
 })
   .then(() => console.log('MongoDB 連接成功'))
