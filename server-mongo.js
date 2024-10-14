@@ -23,15 +23,16 @@ app.use((req, res, next) => {
     next();
 });
 
+console.log('MongoDB 連接字串：', process.env.MONGODB_URI);
+
 // 連接到 MongoDB
-mongoose.connect('process.env.MONGODB_URI', {
+mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  connectTimeoutMS: 30000, // 提高連線超時時間
-  socketTimeoutMS: 45000   // 提高 socket 連線超時時間
+  serverSelectionTimeoutMS: 50000 // 設置為 50 秒的連接超時
 })
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('MongoDB connection error:', err));
+  .then(() => console.log('MongoDB 連接成功'))
+  .catch(err => console.error('MongoDB 連接失敗：', err));
 
 
 // // 使用環境變數中的 MongoDB 連接字串
@@ -87,8 +88,9 @@ wss.on('connection', (ws, req) => {
   const joinMessage = JSON.stringify({ event: 'other', name: id, content: '加入聊天室' });
   broadcast(joinMessage);
 
+  // 當 WebSocket 收到訊息時觸發
   ws.on('message', (data) => {
-    console.log(111, data);
+    // console.log(111, data);
     const message = JSON.parse(data);
     
     // 儲存新消息到 MongoDB
