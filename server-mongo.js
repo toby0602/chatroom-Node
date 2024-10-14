@@ -23,27 +23,12 @@ app.use((req, res, next) => {
     next();
 });
 
-// 檢查環境變數是否正確讀取
-if (!process.env.MONGODB_URI) {
-  console.error('MongoDB URI is not defined in environment variables' + process.env.MONGODB_URI);
-  process.exit(1);  // 如果沒有定義，終止程式
-}
-
 // 連接到 MongoDB
-mongoose.connect(process.env.MONGODB_URI, {
+mongoose.connect(uri, {
   useNewUrlParser: true, useUnifiedTopology: true
 })
   .then(() => console.log('MongoDB 連接成功'))
   .catch((err) => console.error('MongoDB 連接失敗：', err));
-
-
-// // 使用環境變數中的 MongoDB 連接字串
-// mongoose.connect(process.env.MONGODB_URI, {
-//     serverSelectionTimeoutMS: 50000 // 設置為 50 秒的連接超時
-//   })
-//     .then(() => console.log('Connected to MongoDB'))
-//     .catch(err => console.error('MongoDB connection error:', err));
-
 
 // 定義聊天訊息模型
 const messageSchema = new mongoose.Schema({
