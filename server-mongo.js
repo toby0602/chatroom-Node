@@ -25,9 +25,10 @@ app.use((req, res, next) => {
 
 // 連接到 MongoDB
 mongoose.connect('process.env.MONGODB_URI', {
-  serverSelectionTimeoutMS: 50000, // 設置為 50 秒的連接超時
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
+  connectTimeoutMS: 30000, // 提高連線超時時間
+  socketTimeoutMS: 45000   // 提高 socket 連線超時時間
 })
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
@@ -112,8 +113,9 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'template/html/index.html'));
 });
 
+const PORT = process.env.PORT || 5000;
+console.log(`使用的 PORT 為: ${PORT}`);
 // 運行伺服器
-const port = process.env.PORT || 4000;
-server.listen(port, () => {
-  console.log(`伺服器運行於 http://localhost:${port}`);
+server.listen(PORT, () => {
+  console.log(`伺服器運行於 http://localhost:${PORT}`);
 });
