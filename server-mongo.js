@@ -9,9 +9,6 @@ const path = require('path');
 const app = express();
 const server = http.createServer(app);
 
-// // 檢查使用的是 HTTP 還是 HTTPS 協議來決定 WebSocket 使用 ws 還是 wss
-// const isHttps = process.env.NODE_ENV === 'production' || process.env.USE_HTTPS === 'true';
-// const websocketProtocol = isHttps ? 'wss' : 'ws';
 const wss = new WebSocket.Server({ server });
 
 // 設置靜態文件目錄
@@ -103,7 +100,6 @@ app.get('/', (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-console.log(`使用的 PORT 為: ${PORT}`);
 // 運行伺服器
 server.listen(PORT, () => {
   console.log(`伺服器運行於 http://localhost:${PORT}`);
