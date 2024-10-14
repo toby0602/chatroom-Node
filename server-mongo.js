@@ -23,16 +23,14 @@ app.use((req, res, next) => {
     next();
 });
 
-let uri = process.env.MONGODB_URI;
-
 // 檢查環境變數是否正確讀取
-if (!uri) {
-  console.error('MongoDB URI is not defined in environment variables' + uri);
+if (!process.env.MONGODB_URI) {
+  console.error('MongoDB URI is not defined in environment variables' + process.env.MONGODB_URI);
   process.exit(1);  // 如果沒有定義，終止程式
 }
 
 // 連接到 MongoDB
-mongoose.connect(uri, {
+mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true, useUnifiedTopology: true
 })
   .then(() => console.log('MongoDB 連接成功'))
