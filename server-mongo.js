@@ -23,11 +23,11 @@ app.use((req, res, next) => {
     next();
 });
 
-const uri = process.env.MONGODB_URI;
+let uri = process.env.MONGODB_URI;
 
 // 檢查環境變數是否正確讀取
 if (!uri) {
-  console.error('MongoDB URI is not defined in environment variables');
+  console.error('MongoDB URI is not defined in environment variables' + uri);
   process.exit(1);  // 如果沒有定義，終止程式
 }
 
