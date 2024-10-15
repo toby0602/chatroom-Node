@@ -4,3 +4,7 @@
 連結到 MongoDB Compass  
 使用 Websocket 雙向通訊  
 設定保留最新的100則訊息，避免佔過多存儲空間，優化數據操作性能
+  
+2024/10/15
+已部署上Render
+須將MongoDB Network Access IP打開才可使用Render url
