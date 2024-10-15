@@ -24,8 +24,6 @@ console.log(111222, process.env.MONGODB_URI);
 // 連接到 MongoDB
 mongoose.connect(process.env.MONGODB_URI, {
   serverSelectionTimeoutMS: 50000,
-  useNewUrlParser: true, 
-  useUnifiedTopology: true
 })
   .then(() => console.log('MongoDB 連接成功'))
   .catch((err) => console.error('MongoDB 連接失敗：', err));
