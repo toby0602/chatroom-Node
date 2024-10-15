@@ -7,4 +7,4 @@
   
 2024/10/15  
 已部署上Render  
-須將MongoDB Network Access IP打開才可使用Render url
+須將MongoDB Network Access IP 權限打開才可顯示歷史訊息資料
