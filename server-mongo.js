@@ -75,7 +75,6 @@ wss.on('connection', (ws, req) => {
 
   // 當 WebSocket 收到訊息時觸發
   ws.on('message', (data) => {
-    // console.log(111, data);
     const message = JSON.parse(data);
     
     // 儲存新消息到 MongoDB

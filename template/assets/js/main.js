@@ -29,8 +29,9 @@ send.onclick = function (e) {
 };
 
 text.onkeydown = function (e) {
-    if (e.keyCode === 13 && text.value !== "") {
+    if (e.keyCode === 13 && text.value.trim() !== "") {
         handleMessageEvent();
+        e.preventDefault(); // 防止 Enter 鍵導致換行
     }
 };
 
@@ -42,6 +43,8 @@ function createWebSocket() {
 
     var protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
     var url = protocol + "chatroom-node.onrender.com/ws?id=" + PERSON_NAME;
+    // var url = "http://localhost:5000/ws?id=" + PERSON_NAME;
+    
     console.log('WebSocket URL:', url); // 確認 URL 正確
     ws = new WebSocket(url);
 
@@ -50,8 +53,6 @@ function createWebSocket() {
     };
 
     ws.onmessage = function(e) {
-        console.log('Received message:', e.data);
-
         // 判斷接收到的數據是否為 Blob 對象
         if (e.data instanceof Blob) {
             e.data.text().then(function(text) {
@@ -86,14 +87,28 @@ function handleMessage(data) {
     try {
         var m = JSON.parse(data);
         console.log('Parsed message:', m);
+        // 轉為台灣區時間
+        const timestamp = m.timestamp ? m.timestamp : new Date();
+        const timeDate = new Date(timestamp);
+        const taiwanTime = timeDate.toLocaleString("zh-TW", {
+            timeZone: "Asia/Taipei", 
+            hour12: false,
+            second: undefined,  // 隱藏秒數
+            minute: '2-digit',
+            hour: '2-digit',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+        console.log(123, taiwanTime);
 
         var msg = "";
         switch (m.event) {
             case EVENT_MESSAGE:
                 if (m.name === PERSON_NAME) {
-                    msg = getMessage(m.name, m.photo, RIGHT, m.content);
+                    msg = getMessage(m.name, m.photo, RIGHT, m.content, taiwanTime);
                 } else {
-                    msg = getMessage(m.name, m.photo, LEFT, m.content);
+                    msg = getMessage(m.name, m.photo, LEFT, m.content, taiwanTime);
                 }
                 break;
             case EVENT_OTHER:
@@ -122,6 +137,12 @@ function insertMsg(msg, domObj) {
 
 
 function handleMessageEvent() {
+    // 檢查 textarea 是否為空
+    if (text.value.trim() === "") {
+        console.log('Message is empty, not sending.');
+        return; // 若內容為空，則不執行後續動作
+    }
+
     if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({
             "event": EVENT_MESSAGE,
@@ -139,8 +160,7 @@ function getEventMessage(msg) {
     return `<div class="msg-left">${msg}</div>`;
 }
 
-function getMessage(name, img, side, text) {
-    const d = new Date();
+function getMessage(name, img, side, text, date) {
     var msg = `
     <div class="msg ${side}-msg">
         <img src="${img}" alt="" class="msg-img">
@@ -148,7 +168,7 @@ function getMessage(name, img, side, text) {
       <div class="msg-bubble">
         <div class="msg-info">
           <div class="msg-info-name">${name}</div>
-          <div class="msg-info-time">${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${d.getMinutes()}</div>
+          <div class="msg-info-time">${date}</div>
         </div>
 
         <div class="msg-text">${text}</div>

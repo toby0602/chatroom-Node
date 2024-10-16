@@ -22,10 +22,21 @@
     <!--聊天 block-->
 
     <div class="msger-inputarea">
-        <input type="text" class="msger-input" id="msg" placeholder="說些什麼吧～">
+        <!-- <input type="text" class="msger-input" id="msg" placeholder="說些什麼吧～"> -->
+        <textarea name="" id="msg" class="msger-input" rows="1"></textarea>
         <button type="button" id="send" class="msger-send-btn">發送訊息</button>
     </div>
 </section>
 <script src="/assets/js/main.js"></script>
+<script>
+    const textarea = document.getElementById('msg');
+    // 自動調整高度的函數
+    function adjustTextareaHeight() {
+        textarea.style.height = 'auto'; // 先重設高度，避免高度無法正確計算
+        textarea.style.height = textarea.scrollHeight + 'px'; // 根據內容調整高度
+    } 
+
+    textarea.addEventListener('input', adjustTextareaHeight);
+</script>
 </body>
 </html>
