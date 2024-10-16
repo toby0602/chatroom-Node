@@ -68,8 +68,9 @@ body {
     background: #bdbdbd;
 }
 
-.msg-left {
+.msg-center {
     margin-bottom: 10px;
+    text-align: center;
 }
 
 .msg {

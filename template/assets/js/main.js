@@ -42,8 +42,8 @@ function createWebSocket() {
     }
 
     var protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-    var url = protocol + "chatroom-node.onrender.com/ws?id=" + PERSON_NAME;
-    // var url = "http://localhost:5000/ws?id=" + PERSON_NAME;
+    var url = protocol + "chatroom-node.onrender.com/ws?id=" + PERSON_NAME; // 部署用
+    // var url = "http://localhost:5000/ws?id=" + PERSON_NAME; // localhost用
     
     console.log('WebSocket URL:', url); // 確認 URL 正確
     ws = new WebSocket(url);
@@ -115,7 +115,7 @@ function handleMessage(data) {
                 if (m.name !== PERSON_NAME) {
                     msg = getEventMessage(m.name + " " + m.content);
                 } else {
-                    msg = getEventMessage("您已" + m.content);
+                    msg = getEventMessage(`哈囉 ${m.name}，您已${m.content}`);
                 }
                 break;
         }
@@ -157,7 +157,7 @@ function handleMessageEvent() {
 }
 
 function getEventMessage(msg) {
-    return `<div class="msg-left">${msg}</div>`;
+    return `<div class="msg-center">${msg}</div>`;
 }
 
 function getMessage(name, img, side, text, date) {
