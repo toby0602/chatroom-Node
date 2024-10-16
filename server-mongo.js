@@ -1,13 +1,14 @@
+require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
-require('dotenv').config();
 const mongoose = require('mongoose');
 const path = require('path');
 
 // 創建 Express 應用程式
 const app = express();
 const server = http.createServer(app);
+
 const wss = new WebSocket.Server({ server });
 
 // 設置靜態文件目錄
@@ -20,20 +21,11 @@ app.use((req, res, next) => {
 });
 
 // 連接到 MongoDB
-mongoose.connect('mongodb://127.0.0.1:27017/chatroom', {
-  serverSelectionTimeoutMS: 50000 // 設置為 50 秒的連接超時
+mongoose.connect(process.env.MONGODB_URI, {
+  serverSelectionTimeoutMS: 50000,
 })
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('MongoDB connection error:', err));
-
-
-// // 使用環境變數中的 MongoDB 連接字串
-// mongoose.connect(process.env.MONGODB_URI, {
-//     serverSelectionTimeoutMS: 50000 // 設置為 50 秒的連接超時
-//   })
-//     .then(() => console.log('Connected to MongoDB'))
-//     .catch(err => console.error('MongoDB connection error:', err));
-
+  .then(() => console.log('MongoDB 連接成功'))
+  .catch((err) => console.error('MongoDB 連接失敗：', err));
 
 // 定義聊天訊息模型
 const messageSchema = new mongoose.Schema({
@@ -80,9 +72,8 @@ wss.on('connection', (ws, req) => {
   const joinMessage = JSON.stringify({ event: 'other', name: id, content: '加入聊天室' });
   broadcast(joinMessage);
 
+  // 當 WebSocket 收到訊息時觸發
   ws.on('message', (data) => {
-    console.log(111, data);
-    
     const message = JSON.parse(data);
     
     // 儲存新消息到 MongoDB
@@ -107,7 +98,8 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'template/html/index.html'));
 });
 
+const PORT = process.env.PORT || 5000;
 // 運行伺服器
-server.listen(5002, () => {
-  console.log('伺服器運行於 http://localhost:5002');
+server.listen(PORT, () => {
+  console.log(`伺服器運行於 http://localhost:${PORT}`);
 });

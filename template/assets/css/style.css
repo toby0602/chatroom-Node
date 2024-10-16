@@ -68,6 +68,11 @@ body {
     background: #bdbdbd;
 }
 
+.msg-center {
+    margin-bottom: 10px;
+    text-align: center;
+}
+
 .msg {
     display: flex;
     align-items: flex-end;
@@ -90,10 +95,11 @@ body {
 }
 
 .msg-bubble {
-    max-width: 450px;
+    max-width: 50%;
     padding: 15px;
     border-radius: 15px;
     background: var(--left-msg-bg);
+    height: auto;
 }
 
 .msg-info {
@@ -184,4 +190,10 @@ body {
     font-size: 8px;
     padding: 4px 8px;
     border-radius: 12px;
+}
+
+#msg {
+    overflow: hidden;
+    resize: none;
+    font-size: x-large;
 }

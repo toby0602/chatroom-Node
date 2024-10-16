@@ -29,8 +29,9 @@ send.onclick = function (e) {
 };
 
 text.onkeydown = function (e) {
-    if (e.keyCode === 13 && text.value !== "") {
+    if (e.keyCode === 13 && text.value.trim() !== "") {
         handleMessageEvent();
+        e.preventDefault(); // 防止 Enter 鍵導致換行
     }
 };
 
@@ -40,17 +41,15 @@ function createWebSocket() {
         return;
     }
 
-    var url = "ws://" + window.location.host + "/ws?id=" + PERSON_NAME;
-    console.log('WebSocket URL:', url); // 確認 URL 正確
+    var protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+    var url = protocol + "chatroom-node.onrender.com/ws?id=" + PERSON_NAME;
+    
     ws = new WebSocket(url);
-
     ws.onopen = function() {
         console.log('WebSocket connection opened');
     };
 
     ws.onmessage = function(e) {
-        console.log('Received message:', e.data);
-
         // 判斷接收到的數據是否為 Blob 對象
         if (e.data instanceof Blob) {
             e.data.text().then(function(text) {
@@ -61,36 +60,57 @@ function createWebSocket() {
         }
     };
 
+    // 當 WebSocket 連接關閉時
     ws.onclose = function(event) {
         console.log('WebSocket connection closed:', event);
-        // 自動重連邏輯
-        setTimeout(createWebSocket, 3000); // 3秒後嘗試重新連接
+        // 根據關閉的原因選擇是否要重新連接
+        if (!event.wasClean || event.code !== 1000) {
+            // 如果關閉不是正常的或代碼不是1000（表示正常關閉），進行重連
+            setTimeout(createWebSocket, 10000);
+        }
     };
 
+    // 當 WebSocket 發生錯誤
     ws.onerror = function(error) {
         console.log('WebSocket error:', error);
+        // 錯誤處理後，如果 WebSocket 仍然關閉，嘗試重新連接
+        if (ws.readyState === WebSocket.CLOSED) {
+            setTimeout(createWebSocket, 10000);
+        }
     };
 }
 
 function handleMessage(data) {
     try {
         var m = JSON.parse(data);
-        console.log('Parsed message:', m);
+        // 轉為台灣區時間
+        const timestamp = m.timestamp ? m.timestamp : new Date();
+        const timeDate = new Date(timestamp);
+        const taiwanTime = timeDate.toLocaleString("zh-TW", {
+            timeZone: "Asia/Taipei", 
+            hour12: false,
+            second: undefined,  // 隱藏秒數
+            minute: '2-digit',
+            hour: '2-digit',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
 
         var msg = "";
         switch (m.event) {
             case EVENT_MESSAGE:
                 if (m.name === PERSON_NAME) {
-                    msg = getMessage(m.name, m.photo, RIGHT, m.content);
+                    msg = getMessage(m.name, m.photo, RIGHT, m.content, taiwanTime);
                 } else {
-                    msg = getMessage(m.name, m.photo, LEFT, m.content);
+                    msg = getMessage(m.name, m.photo, LEFT, m.content, taiwanTime);
                 }
                 break;
             case EVENT_OTHER:
                 if (m.name !== PERSON_NAME) {
                     msg = getEventMessage(m.name + " " + m.content);
                 } else {
-                    msg = getEventMessage("您已" + m.content);
+                    msg = getEventMessage(`哈囉 ${m.name}，您已${m.content}`);
                 }
                 break;
         }
@@ -112,6 +132,12 @@ function insertMsg(msg, domObj) {
 
 
 function handleMessageEvent() {
+    // 檢查 textarea 是否為空
+    if (text.value.trim() === "") {
+        console.log('Message is empty, not sending.');
+        return; // 若內容為空，則不執行後續動作
+    }
+
     if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({
             "event": EVENT_MESSAGE,
@@ -126,11 +152,10 @@ function handleMessageEvent() {
 }
 
 function getEventMessage(msg) {
-    return `<div class="msg-left">${msg}</div>`;
+    return `<div class="msg-center">${msg}</div>`;
 }
 
-function getMessage(name, img, side, text) {
-    const d = new Date();
+function getMessage(name, img, side, text, date) {
     var msg = `
     <div class="msg ${side}-msg">
         <img src="${img}" alt="" class="msg-img">
@@ -138,7 +163,7 @@ function getMessage(name, img, side, text) {
       <div class="msg-bubble">
         <div class="msg-info">
           <div class="msg-info-name">${name}</div>
-          <div class="msg-info-time">${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${d.getMinutes()}</div>
+          <div class="msg-info-time">${date}</div>
         </div>
 
         <div class="msg-text">${text}</div>
@@ -147,11 +172,6 @@ function getMessage(name, img, side, text) {
   `;
     return msg;
 }
-
-// function insertMsg(msg, domObj) {
-//     domObj.insertAdjacentHTML("beforeend", msg);
-//     domObj.scrollTop = domObj.scrollHeight; // 滾動到最新消息
-// }
 
 function getRandomNum(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
