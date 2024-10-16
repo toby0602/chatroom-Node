@@ -19,7 +19,6 @@ app.use((req, res, next) => {
     console.log(`Request URL: ${req.url}`);
     next();
 });
-console.log(111222, process.env.MONGODB_URI);
 
 // 連接到 MongoDB
 mongoose.connect(process.env.MONGODB_URI, {

@@ -42,12 +42,9 @@ function createWebSocket() {
     }
 
     var protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-    var url = protocol + "chatroom-node.onrender.com/ws?id=" + PERSON_NAME; // 部署用
-    // var url = "http://localhost:5000/ws?id=" + PERSON_NAME; // localhost用
+    var url = protocol + "chatroom-node.onrender.com/ws?id=" + PERSON_NAME;
     
-    console.log('WebSocket URL:', url); // 確認 URL 正確
     ws = new WebSocket(url);
-
     ws.onopen = function() {
         console.log('WebSocket connection opened');
     };
@@ -86,7 +83,6 @@ function createWebSocket() {
 function handleMessage(data) {
     try {
         var m = JSON.parse(data);
-        console.log('Parsed message:', m);
         // 轉為台灣區時間
         const timestamp = m.timestamp ? m.timestamp : new Date();
         const timeDate = new Date(timestamp);
@@ -100,7 +96,6 @@ function handleMessage(data) {
             month: '2-digit',
             day: '2-digit'
         });
-        console.log(123, taiwanTime);
 
         var msg = "";
         switch (m.event) {
@@ -177,11 +172,6 @@ function getMessage(name, img, side, text, date) {
   `;
     return msg;
 }
-
-// function insertMsg(msg, domObj) {
-//     domObj.insertAdjacentHTML("beforeend", msg);
-//     domObj.scrollTop = domObj.scrollHeight; // 滾動到最新消息
-// }
 
 function getRandomNum(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
