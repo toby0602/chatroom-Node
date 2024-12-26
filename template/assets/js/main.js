@@ -16,13 +16,15 @@ const userPhotos = [
     "/assets/img/pic9.jpg",
     "/assets/img/pic10.jpg",
 ]
-var PERSON_IMG = userPhotos[getRandomNum(0, userPhotos.length - 1)]; 
-var PERSON_NAME = "Guest" + Math.floor(Math.random() * 1000); 
+var PERSON_IMG = userPhotos[getRandomNum(0, userPhotos.length - 1)];
+var PERSON_NAME = "Guest" + Math.floor(Math.random() * 1000);
 
 var ws;
 var chatroom = document.getElementsByClassName("msger-chat");
 var text = document.getElementById("msg");
 var send = document.getElementById("send");
+const MAX_RETRIES = 5; // 最大重試次數
+let retryCount = 0; // 當前重試次數
 
 send.onclick = function (e) {
     handleMessageEvent();
@@ -43,16 +45,17 @@ function createWebSocket() {
 
     var protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
     var url = protocol + "chatroom-node.onrender.com/ws?id=" + PERSON_NAME;
-    
+
     ws = new WebSocket(url);
-    ws.onopen = function() {
+    ws.onopen = function () {
         console.log('WebSocket connection opened');
+        retryCount = 0 // 連線成功後重置重試次數
     };
 
-    ws.onmessage = function(e) {
+    ws.onmessage = function (e) {
         // 判斷接收到的數據是否為 Blob 對象
         if (e.data instanceof Blob) {
-            e.data.text().then(function(text) {
+            e.data.text().then(function (text) {
                 handleMessage(text);
             }).catch(err => console.error('Error reading Blob:', err));
         } else {
@@ -61,23 +64,32 @@ function createWebSocket() {
     };
 
     // 當 WebSocket 連接關閉時
-    ws.onclose = function(event) {
+    ws.onclose = function (event) {
         console.log('WebSocket connection closed:', event);
         // 根據關閉的原因選擇是否要重新連接
         if (!event.wasClean || event.code !== 1000) {
-            // 如果關閉不是正常的或代碼不是1000（表示正常關閉），進行重連
-            setTimeout(createWebSocket, 10000);
+            retryConnection();
         }
     };
 
     // 當 WebSocket 發生錯誤
-    ws.onerror = function(error) {
+    ws.onerror = function (error) {
         console.log('WebSocket error:', error);
         // 錯誤處理後，如果 WebSocket 仍然關閉，嘗試重新連接
         if (ws.readyState === WebSocket.CLOSED) {
-            setTimeout(createWebSocket, 10000);
+            retryConnection();
         }
     };
+}
+
+function retryConnection() {
+    if (retryCount < MAX_RETRIES) {
+        retryCount++;
+        const delay = Math.min(10000, 1000 * Math.pow(2, retryCount)) // 指數退避，最大10秒
+        console.log(`Retrying connection in ${delay / 1000} seconds ... (Attempt ${retryCount})`);
+    } else {
+        console.error(`Failed to reconnect after multiple attempts.`);
+    }
 }
 
 function handleMessage(data) {
@@ -87,7 +99,7 @@ function handleMessage(data) {
         const timestamp = m.timestamp ? m.timestamp : new Date();
         const timeDate = new Date(timestamp);
         const taiwanTime = timeDate.toLocaleString("zh-TW", {
-            timeZone: "Asia/Taipei", 
+            timeZone: "Asia/Taipei",
             hour12: false,
             second: undefined,  // 隱藏秒數
             minute: '2-digit',
