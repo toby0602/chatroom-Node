@@ -7,5 +7,5 @@
   
 2024/10/15  
 已部署上Render  
-須將MongoDB Network Access IP 權限打開才可顯示歷史訊息或送出資料
+須將MongoDB Network Access IP 權限打開才可顯示歷史訊息或送出資料  
 URL：https://chatroom-node.onrender.com/
