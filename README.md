@@ -1,6 +1,4 @@
-![1016-1](https://github.com/user-attachments/assets/774d0171-f645-4532-9620-b39f06dd2739)  
-![動畫](https://github.com/user-attachments/assets/4a23a092-90e8-4612-b19d-135cf1dbc31d)
-
+![動畫](https://github.com/user-attachments/assets/4a23a092-90e8-4612-b19d-135cf1dbc31d)  
 執行指令 node server-mongo.js  
 新加入者可看見歷史訊息  
 連結到 MongoDB Compass  
