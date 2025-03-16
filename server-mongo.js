@@ -58,7 +58,7 @@ async function keepLatestMessages() {
     }
 }
 
-const allowedOrigins = ['http://localhost:5000', 'https://chatroom-node.onrender.com/'];
+const allowedOrigins = ['http://localhost:5000', 'https://chatroom-node.onrender.com'];
 
 // WebSocket 處理函數
 wss.on('connection', (ws, req) => {
