@@ -58,9 +58,17 @@ async function keepLatestMessages() {
     }
 }
 
+const allowedOrigins = ['http://localhost:5000', 'https://chatroom-node.onrender.com/'];
 
 // WebSocket 處理函數
 wss.on('connection', (ws, req) => {
+  const origin = req.headers.origin;
+  if (!allowedOrigins.includes(origin)) {
+    ws.terminate(); // 終止未授權的連線
+    console.log(`拒絕來自 ${origin} 的 WebSocket 連線`);
+    return;
+  }
+
   const id = new URL(req.url, `http://${req.headers.host}`).searchParams.get('id');
   clients.set(ws, id);
 
